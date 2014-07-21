@@ -6,7 +6,7 @@ Author URI: http://www.MrFent.com
 Demo: http://shortcode-quicktags.MrFent.com
 Description: Adds PageLines shortcode Quicktags to the WordPress HTML editor 
 Class Name: ShortcodeQuicktags
-Version: 1.0.0
+Version: 1.0.1
 PageLines: true
 v3: true
 */
@@ -14,14 +14,14 @@ v3: true
 class ShortcodeQuicktags {
 	
 	function __construct() {
-		if ( 'dms' == basename( get_template_directory() ) ) {
 		add_action( 'admin_head', array(&$this, 'admin_register_head'));
 		add_action( 'after_setup_theme', array( &$this, 'options' ));
 		add_action( 'admin_print_footer_scripts', array(&$this, 'add_shortcode_quicktags'));	
-		}
 	}
 	
 	function admin_register_head() {
+		if ( !class_exists( 'EditorInterface' ) ) 
+		return;
 		if ((pl_setting( 'sq_button_text_color')) || (pl_setting( 'sq_button_background_color'))) {
 		$button_background_color = (pl_setting( 'sq_button_background_color')) ? pl_setting( 'sq_button_background_color') : '#f7f7f7';
 		$button_text_color = (pl_setting( 'sq_button_text_color')) ? pl_setting( 'sq_button_text_color') : '555555';
@@ -34,6 +34,8 @@ class ShortcodeQuicktags {
 	}
 	
 	function add_shortcode_quicktags() {
+		if ( !class_exists( 'EditorInterface' ) )
+		return;
 	    if (wp_script_is('quicktags')){
 		$colorclass = (pl_setting( 'color_class')) ? pl_setting( 'color_class') : 'primary'; ?>
 	    <script type="text/javascript">
@@ -41,6 +43,8 @@ class ShortcodeQuicktags {
 			QTags.addButton( 'pl_accordion', '<?php _e( 'Accordion', 'shortcode-quicktags' );?>', '[pl_accordion name="accordion"][pl_accordioncontent name="accordion" number="1" heading="Tile 1" open="yes"]\nContent 1\n[/pl_accordioncontent]\n[pl_accordioncontent name="accordion" number="2" heading="Title 2"]\nContent 2\n[/pl_accordioncontent]\n[/pl_accordion]', '', 'pl_accordion', '<?php _e( 'PageLines Accordion', 'shortcode-quicktags' );?>', 1000 );
 			<?php } if(!pl_setting('pl_alertbox')) {?>
 			QTags.addButton( 'pl_alertbox', '<?php _e( 'Alert', 'shortcode-quicktags' );?>', '[pl_alertbox type="<?php echo $colorclass; ?>" closable="yes"]', '[/pl_alertbox]', 'pl_alertbox', '<?php _e( 'PageLines Alert\n\ntype:\n   default (Grey)\n   primary (Dark Blue)\n   info (Light Blue)\n   success (Green)\n   warning (Orange)\n   important (Red)\n   inverse (Black)\n\n(Optional) Insert between code:\n<h2 class=&#34;alert-heading&#34;>Alert Heading</h2>', 'shortcode-quicktags' );?>', 1000 );
+			<?php } if(!pl_setting('pl_animation')) {?>	
+			QTags.addButton( 'pl_animation', '<?php _e( 'Animation', 'shortcode-quicktags' );?>', '<div class="pl-animation-group">\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n	<div class="pl-animation pla-fade">INSERT CONTENT</div>\n</div>', '', 'pl_animation', '<?php _e( 'PageLines Animation Classes\n\nclass:\n  no-anim (No Animation)\n  pl-appear\n  pla-fade\n  pla-scale\n  pla-from-top\n  pla-from-bottom\n  pla-from-left\n  pla-from-right\n\nTo make everything appear at once, remove the\nopening and closing pl-animation-group div\n\nYou can use these Animation Classes with\nthings like <ol> & <ul> lists, the PageLines\nResponsive Grid, pretty much anything...', 'shortcode-quicktags' );?>', 1000 );
 			<?php } if(!pl_setting('pl_badge')) {?>
 			QTags.addButton( 'pl_badge', '<?php _e( 'Badge', 'shortcode-quicktags' );?>', '[pl_badge type="<?php echo $colorclass; ?>"]', '[/pl_badge]', 'pl_badge', '<?php _e( 'PageLines Badge\n\ntype:\n   default (Grey)\n   primary (Dark Blue)\n   info (Light Blue)\n   success (Green)\n   warning (Orange)\n   important (Red)\n   inverse (Black)', 'shortcode-quicktags' );?>', 1000 );
 			<?php } if(!pl_setting('pl_blockquote')) {?>
@@ -97,8 +101,8 @@ class ShortcodeQuicktags {
 	}
 
 	function options(  ){
-		if(!function_exists('pl_setting'))
-			return;
+		if ( !class_exists( 'EditorInterface' ) )
+		return;
 		$options = array( );
 		$options[] = array(
 			'key'					=> 'quicktags-instructions',
@@ -158,6 +162,11 @@ class ShortcodeQuicktags {
 					'type' 			=> 'check',
 					'label'			=> __( 'Hide Alert', 'shortcode-quicktags' )
 				),
+				array(
+					'key'			=> 'pl_animation',
+					'type' 			=> 'check',
+					'label'			=> __( 'Hide Animation', 'shortcode-quicktags' )
+				),			
 				array(
 					'key'			=> 'pl_badge',
 					'type' 			=> 'check',
